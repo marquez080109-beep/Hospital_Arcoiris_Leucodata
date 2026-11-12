@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es-MX">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Captura · Hospital Infantil Arcoíris</title>
+<link rel="icon" type="image/png" href="hospital.png">
+<style>
+:root{font:16px system-ui,sans-serif;color:#9f2357;background:#c92d1f;--accent:#126659}
+*{box-sizing:border-box}body{margin:0}header{background:#9d380d;color:white;padding:1.6rem max(1.2rem,calc((100% - 980px)/2));border-bottom:5px solid #38b79e}h1,h2,p{margin:.25rem 0 .7rem}header p{color:#d4e9ee}
+main{max-width:980px;margin:2rem auto;padding:0 1rem}.panel{background:white;border:1px solid #d4e1e6;border-radius:14px;padding:1.4rem;margin-bottom:1rem}.row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.2rem 0}.wide{grid-column:1/-1}label{display:block;font-weight:650;margin-bottom:.35rem}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;border:1px solid #8ba4af;border-radius:8px;padding:.65rem;color:inherit;background:white}textarea{min-height:5rem;resize:vertical}small{display:block;color:#435c69;margin-top:.3rem}button{border:0;border-radius:8px;background:var(--accent);color:white;padding:.7rem 1rem;cursor:pointer;font-weight:650}button:disabled{opacity:.55;cursor:default}:focus-visible{outline:3px solid #187d9a;outline-offset:2px}#status{margin-top:.8rem;overflow-wrap:anywhere;color:#125c48}#status.error{color:#8b273a}.note{color:#425b69}.required{color:#8b273a}
+@media(max-width:640px){.row,.fields{grid-template-columns:1fr}main{margin:1rem auto}.panel{padding:1rem}}
+header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:clamp(.65rem,3vw,1.5rem);background:linear-gradient(105deg,#fff0e1,#ffebf3);color:#442733;border-bottom:5px solid #da5588}
+header img{width:clamp(56px,12vw,96px);height:clamp(56px,12vw,96px);object-fit:contain}
+header a{color:#8d194a;font-weight:650}
+header h1{font-size:clamp(1.2rem,4vw,2rem)}
+</style>
+<header>
+  <img src="hospital.png" alt="Hospital Infantil Arcoíris">
+  <div><h1>Captura para Excel</h1><a href="/registro/">Registro de cuentas</a></div>
+  <img src="leucodatos.png" alt="LeucoDatos">
+</header>
+<main>
+ <section class="panel row" aria-label="Selecciona dónde guardar">
+  <div><label for="group">Módulo</label><select id="group"></select></div>
+  <div><label for="table">Tabla de Excel</label><select id="table"></select></div>
+ </section>
+ <section class="panel">
+  <h2 id="title">Registro</h2><p class="note">Los campos con * son obligatorios. El ID principal se genera al guardar.</p>
+  <form id="form"><div id="fields" class="fields"></div><button id="save" disabled>Guardar en Excel</button></form>
+  <div id="status" role="status" aria-live="polite"></div>
+ </section>
+</main>
+<script>
+const group = document.querySelector('#group'), table = document.querySelector('#table');
+const form = document.querySelector('#form'), fields = document.querySelector('#fields');
+const save = document.querySelector('#save'), status = document.querySelector('#status');
+const heading = document.querySelector('#title');
+const types = {'Fecha':'date','Fecha y hora':'datetime-local','Hora':'time','Número':'number','Importe MXN':'number'};
+const moduleLabels = {Clinica:'Atención clínica', Leucemia:'Leucemia pediátrica'};
+const overrides = {huella_token:'Huella del token QR', valido_en:'Fecha de validación', valor_numerico:'Valor numérico', peso_kg:'Peso (kg)', talla_cm:'Talla (cm)', temperatura_c:'Temperatura (°C)'};
+let tables = [], request = 0;
+
+function message(text, error = false) {
+ status.textContent = text;
+ status.classList.toggle('error', error);
+}
+
+async function api(path, options) {
+ if (location.origin !== 'http://127.0.0.1:8765') {
+  throw new Error('Inicia Python con py app.py y abre el formulario en http://127.0.0.1:8765.');
+ }
+ let response;
+ try {
+  response = await fetch(path, options);
+ } catch {
+  throw new Error('Enciende el servidor con py app.py y recarga esta página.');
+ }
+ if (!response.headers.get('Content-Type')?.includes('application/json')) {
+  throw new Error('La página no está conectada al servidor de Excel. Ejecuta py app.py y vuelve a abrirla.');
+ }
+ const payload = await response.json();
+ if (!response.ok) throw new Error(payload.error);
+ return payload;
+}
+
+function addField(field) {
+ if (field.primary) return false;
+ const block = document.createElement('div');
+ const label = document.createElement('label');
+ const id = 'capture_' + field.name;
+ label.htmlFor = id;
+ const base = field.name.replaceAll('_',' ');
+ label.textContent = overrides[field.name] || base.charAt(0).toUpperCase() + base.slice(1);
+ if (field.required) {
+  const mark = document.createElement('span');
+  mark.className = 'required';
+  mark.textContent = ' *';
+  label.append(mark);
+ }
+ let control;
+ const longText = /^(notas|observaciones|resumen_clinico|indicaciones)/.test(field.name);
+ if (field.ref || field.options.length) {
+  control = document.createElement('select');
+  const prompt = field.ref && !field.options.length ? 'Primero registra en ' + field.targetSheet : 'Selecciona…';
+  control.add(new Option(prompt, ''));
+  for (const option of field.options) control.add(new Option(option.label, option.code));
+ } else if (longText) {
+  control = document.createElement('textarea');
+  block.className = 'wide';
+ } else {
+  control = document.createElement('input');
+  control.type = types[field.kind] || (/^correo/.test(field.name) ? 'email' : /^telefono/.test(field.name) ? 'tel' : 'text');
+  if (control.type === 'number') control.step = 'any';
+ }
+ control.id = id;
+ control.name = field.name;
+ control.required = field.required;
+ block.append(label, control);
+ if (field.note) {
+  const help = document.createElement('small');
+  help.id = id + '_help';
+  help.textContent = field.note;
+  control.setAttribute('aria-describedby', help.id);
+  block.append(help);
+ }
+ fields.append(block);
+ return Boolean(field.required && field.ref && !field.options.length);
+}
+
+async function showTable() {
+ const current = ++request;
+ fields.replaceChildren();
+ save.disabled = true;
+ message('Cargando campos…');
+ try {
+  const {model} = await api('/api/form?tabla=' + encodeURIComponent(table.value));
+  if (current !== request) return;
+  heading.textContent = model.label;
+  const blocked = model.fields.map(addField).some(Boolean);
+  save.disabled = blocked;
+  message(blocked ? 'Completa primero las tablas indicadas en los campos obligatorios.' : '');
+ } catch (error) {
+  if (current === request) message(error.message, true);
+ }
+}
+
+function showGroup() {
+ table.replaceChildren();
+ for (const item of tables.filter(item => item.group === group.value)) {
+  table.add(new Option(item.sheet.replaceAll('_',' '), item.key));
+ }
+ showTable();
+}
+
+group.addEventListener('change', showGroup);
+table.addEventListener('change', showTable);
+form.addEventListener('submit', async event => {
+ event.preventDefault();
+ save.disabled = group.disabled = table.disabled = true;
+ message('Guardando registro…');
+ try {
+  const {id} = await api('/api/form', {method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({tabla:table.value,datos:Object.fromEntries(new FormData(form))})});
+  form.reset();
+  message('Guardado en ' + table.selectedOptions[0].textContent + '. ID: ' + id);
+ } catch (error) {
+  message(error.message, true);
+ } finally {
+  save.disabled = group.disabled = table.disabled = false;
+ }
+});
+(async () => {
+ try {
+  ({tables} = await api('/api/form'));
+  if (!tables.length) throw new Error('El archivo no contiene tablas de captura.');
+  for (const name of new Set(tables.map(t => t.group))) group.add(new Option(moduleLabels[name] || name, name));
+  showGroup();
+ } catch (error) {
+  message(error.message, true);
+ }
+})();
+</script>
+</html>

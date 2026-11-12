@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de cuentas | Hospital Infantil Arcoíris</title>
+<link rel="icon" type="image/png" href="hospital.png">
+<style>
+:root {
+  font: 16px system-ui, sans-serif;
+  color: #3e2430;
+  background: #fff5f4;
+  --orange: #9d380d;
+  --pink: #9f2357;
+  --border: #ecd3d7;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: linear-gradient(145deg, #fff0e2, #fff6f8 64%); min-height: 100vh; }
+main { max-width: 900px; margin: auto; padding: clamp(1rem, 4vw, 2.5rem); }
+header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: clamp(.65rem, 3vw, 1.6rem);
+  align-items: center;
+  margin-bottom: 1.4rem;
+  padding: clamp(.75rem, 3vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-top: 6px solid transparent;
+  border-radius: 18px;
+  background: linear-gradient(#fff, #fff) padding-box,
+              linear-gradient(90deg, #ef801e, #e24984) border-box;
+}
+header img {
+  display: block;
+  width: clamp(62px, 13vw, 108px);
+  height: clamp(62px, 13vw, 108px);
+  object-fit: contain;
+}
+h1 { font-size: clamp(1.3rem, 4vw, 2.2rem); margin: 0; line-height: 1.12; }
+h2 { margin: 0 0 .55rem; font-size: 1.45rem; }
+p { line-height: 1.5; }
+nav { display: flex; gap: .65rem; flex-wrap: wrap; margin-bottom: .9rem; }
+button {
+  font: inherit;
+  font-weight: 700;
+  border: 1px solid var(--active, var(--pink));
+  border-radius: 10px;
+  padding: .7rem 1rem;
+  cursor: pointer;
+  color: var(--active, var(--pink));
+  background: white;
+}
+[data-tab="personal"], #personal { --active: var(--orange); }
+[data-tab="paciente"], #paciente { --active: var(--pink); }
+button[aria-pressed="true"], button[type="submit"] { background: var(--active, var(--pink)); color: white; }
+button:disabled { opacity: .55; cursor: default; }
+section {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: clamp(1rem, 4vw, 2rem);
+  background: white;
+  box-shadow: 0 10px 28px #7c38280b;
+}
+form h2 { color: var(--active); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1rem 0 1.4rem; }
+label { display: block; font-weight: 650; }
+input:not([type="hidden"]), select {
+  display: block;
+  width: 100%;
+  margin-top: .35rem;
+  padding: .68rem;
+  border: 1px solid #b698a2;
+  border-radius: 8px;
+  background: white;
+  color: inherit;
+  font: inherit;
+}
+a { color: var(--pink); }
+:focus-visible { outline: 3px solid #a72d62; outline-offset: 3px; }
+fieldset { min-width: 0; border: 1px solid var(--border); border-radius: 10px; margin: 1rem 0; background: #fff7fa; }
+legend { font-weight: 700; color: var(--pink); }
+#area-note { background: #fff3e5; padding: .65rem .85rem; border-radius: 8px; }
+#credenciales { margin-top: 1rem; background: #fff4e8; border-color: #e9b48e; overflow-wrap: anywhere; }
+#error { color: #932542; }
+dl { margin-bottom: 0; }
+dd { margin: 0 0 .8rem; }
+dt { font-weight: 700; }
+@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+<header><img src="hospital.png" alt="Hospital Infantil Arcoíris"><h1>Registro de cuentas</h1><img src="leucodatos.png" alt="LeucoDatos"></header>
+<nav aria-label="Tipo de registro">
+<button type="button" data-tab="personal" aria-pressed="true">Trabajadores</button>
+<button type="button" data-tab="paciente" aria-pressed="false">Pacientes</button>
+</nav>
+<section>
+<form id="personal">
+<h2>Datos del trabajador</h2>
+<p>Completa los campos marcados con *.</p>
+<input type="hidden" name="tipo" value="personal">
+<div class="grid">
+<label>Nombre(s) *<input name="nombres" required maxlength="120"></label>
+<label>Apellidos *<input name="apellidos" required maxlength="120"></label>
+<label>Área del hospital *<select name="area_id" id="areas" required><option value="">Selecci
+  <optgroup label="Dirección y Administración">
+      <option>Director General</option>
+      <option>Director Médico</option>
+      <option>Director Administrativo</option>
+      <option>Subdirector Médico</option>
+      <option>Gerente de Operaciones</option>
+      <option>Coordinador General</option>
+      <option>Jefe de Recursos Humanos</option>
+      <option>Jefe de Finanzas</option>
+      <option>Jefe de Compras</option>
+      <option>Jefe de Calidad</option>
+      <option>Jefe de Sistemas (TI)</option>
+      <option>Secretario Ejecutivo</option>
+      <option>Asistente Administrativo</option>
+    </optgroup>
+
+    <optgroup label="Personal Médico">
+      <option>Médico General</option>
+      <option>Médico Pediatra</option>
+      <option>Médico Internista</option>
+      <option>Médico Urgenciólogo</option>
+      <option>Médico Cirujano</option>
+      <option>Médico Anestesiólogo</option>
+      <option>Cardiólogo</option>
+      <option>Neurólogo</option>
+      <option>Oncólogo Pediátrico</option>
+      <option>Hematólogo</option>
+      <option>Ginecólogo</option>
+      <option>Oftalmólogo</option>
+      <option>Otorrinolaringólogo</option>
+      <option>Dermatólogo</option>
+      <option>Psiquiatra</option>
+      <option>Médico Residente</option>
+      <option>Médico Interno</option>
+    </optgroup>
+
+    <optgroup label="Enfermería">
+      <option>Director de Enfermería</option>
+      <option>Jefe de Enfermería</option>
+      <option>Supervisor de Enfermería</option>
+      <option>Enfermero Especialista</option>
+      <option>Enfermero General</option>
+      <option>Auxiliar de Enfermería</option>
+      <option>Enfermero de Urgencias</option>
+      <option>Enfermero de Quirófano</option>
+      <option>Enfermero Pediátrico</option>
+    </optgroup>
+
+    <optgroup label="Laboratorio LeucoDatos">
+      <option>Director de Laboratorio</option>
+      <option>Coordinador de Laboratorio</option>
+      <option>Químico Farmacéutico Biólogo (QFB)</option>
+      <option>Químico Analista</option>
+      <option>Técnico Laboratorista Clínico</option>
+      <option>Flebotomista</option>
+      <option>Microbiólogo</option>
+      <option>Hematólogo Clínico</option>
+      <option>Responsable de Banco de Sangre</option>
+      <option>Auxiliar de Laboratorio</option>
+    </optgroup>
+
+    <optgroup label="Farmacia">
+      <option>Jefe de Farmacia</option>
+      <option>Farmacéutico</option>
+      <option>Auxiliar de Farmacia</option>
+      <option>Responsable de Inventarios</option>
+    </optgroup>
+
+    <optgroup label="Diagnóstico e Imagenología">
+      <option>Radiólogo</option>
+      <option>Técnico Radiólogo</option>
+      <option>Ultrasonografista</option>
+      <option>Técnico de Resonancia Magnética</option>
+      <option>Técnico de Tomografía</option>
+    </optgroup>
+
+    <optgroup label="Terapias y Rehabilitación">
+      <option>Fisioterapeuta</option>
+      <option>Terapeuta Ocupacional</option>
+      <option>Terapeuta Respiratorio</option>
+      <option>Psicólogo Clínico</option>
+      <option>Nutriólogo</option>
+    </optgroup>
+
+    <optgroup label="Atención al Paciente">
+      <option>Jefe de Admisión</option>
+      <option>Recepcionista</option>
+      <option>Auxiliar de Admisión</option>
+      <option>Gestor de Pacientes</option>
+      <option>Trabajador Social</option>
+      <option>Atención a Usuarios</option>
+    </optgroup>
+
+    <optgroup label="Urgencias">
+      <option>Coordinador de Urgencias</option>
+      <option>Médico de Urgencias</option>
+      <option>Enfermero de Urgencias</option>
+      <option>Paramédico</option>
+      <option>Camillero</option>
+    </optgroup>
+
+    <optgroup label="Archivo Clínico">
+      <option>Jefe de Archivo Clínico</option>
+      <option>Técnico en Expedientes</option>
+      <option>Capturista de Datos</option>
+      <option>Documentador Clínico</option>
+    </optgroup>
+
+    <optgroup label="Sistemas y Tecnología">
+      <option>Director de TI</option>
+      <option>Administrador de Sistemas</option>
+      <option>Administrador de Base de Datos</option>
+      <option>Desarrollador Web</option>
+      <option>Analista de Datos</option>
+      <option>Técnico de Soporte</option>
+    </optgroup>
+
+    <optgroup label="Servicios Generales">
+      <option>Jefe de Mantenimiento</option>
+      <option>Técnico Electricista</option>
+      <option>Técnico de Climatización</option>
+      <option>Plomero</option>
+      <option>Personal de Limpieza</option>
+      <option>Jardinero</option>
+    </optgroup>
+
+    <optgroup label="Seguridad">
+      <option>Jefe de Seguridad</option>
+      <option>Guardia de Seguridad</option>
+      <option>Monitorista de CCTV</option>
+      <option>Control de Accesos</option>
+    </optgroup>
+
+    <optgroup label="Logística y Almacén">
+      <option>Jefe de Almacén</option>
+      <option>Almacenista</option>
+      <option>Encargado de Compras</option>
+      <option>Chofer</option>
+      <option>Mensajero</option>
+    </optgroup>
+
+    <optgroup label="Docencia e Investigación">
+      <option>Coordinador Académico</option>
+      <option>Investigador Clínico</option>
+      <option>Instructor de Capacitación</option>
+      <option>Coordinador de Residencias Médicas</option>
+    </optgroup>
+  </select>
+</label>
+<label>Puesto *<input name="puesto" required maxlength="120" placeholder="Ej. Enfermería"></label>
+<label>Rol de la cuenta *<select name="rol" required><option value="">Selecciona un rol</option><option value="Medico">Médico</option><option>Administrador</option><option value="Personal">Personal del hospital</option></select></label>
+<label>Especialidad<input name="especialidad" maxlength="120"></label>
+<label>Cédula profesional<input name="cedula_profesional" maxlength="30"></label>
+<label>Correo laboral<input name="correo_laboral" type="email" maxlength="254"></label>
+<label>Teléfono laboral<input name="telefono_laboral" type="tel" maxlength="30"></label>
+<label>Fecha de alta<input name="fecha_alta" type="date"></label>
+</div>
+<p id="area-note" hidden>Primero agrega un área en <a href="/">Captura de Excel</a> y vuelve a abrir esta página.</p>
+<button type="submit">Guardar y generar cuenta</button>
+</form>
+<form id="paciente" hidden>
+<h2>Datos del paciente</h2>
+<p>Completa los campos marcados con *.</p>
+<input type="hidden" name="tipo" value="paciente">
+<div class="grid">
+<label>Nombre(s) *<input name="nombres" required maxlength="120"></label>
+<label>Apellidos *<input name="apellidos" required maxlength="120"></label>
+<label>Fecha de nacimiento *<input name="fecha_nacimiento" type="date" required></label>
+<label>Folio del expediente<input name="folio_expediente" maxlength="60"></label>
+<label>Titular de la cuenta *<select id="titular" name="titular" required><option value="tutor">Tutor autorizado</option><option value="paciente">Paciente</option></select></label>
+</div>
+<fieldset id="tutor">
+<legend>Datos del tutor autorizado</legend>
+<div class="grid">
+<label>Nombre(s) *<input name="tutor_nombres" required maxlength="120"></label>
+<label>Apellidos *<input name="tutor_apellidos" required maxlength="120"></label>
+<label>Parentesco *<input name="parentesco" required maxlength="80"></label>
+<label>Teléfono<input name="tutor_telefono" type="tel" maxlength="30"></label>
+<label>Correo<input name="tutor_correo" type="email" maxlength="254"></label>
+</div>
+<small>Completa al menos un medio de contacto.</small>
+</fieldset>
+<button type="submit">Guardar y generar cuenta</button>
+</form>
+<p id="error" role="alert" hidden></p>
+</section>
+<section id="credenciales" hidden aria-live="polite" tabindex="-1">
+<h2>Registro guardado</h2>
+<p>La contraseña se muestra al crear la cuenta.</p>
+<dl><dt>Usuario</dt><dd id="usuario"></dd><dt>Contraseña generada</dt><dd id="contrasena"></dd><dt>ID del registro</dt><dd id="persona_id"></dd></dl>
+</section>
+</main>
+<p>
+    <a href="/hospital/">Volver al inicio de sesión</a>
+</p>
+<script>
+const forms = [...document.querySelectorAll('form')];
+const tabs = [...document.querySelectorAll('[data-tab]')];
+const area = document.querySelector('#areas');
+const areaNote = document.querySelector('#area-note');
+const titular = document.querySelector('#titular');
+const tutor = document.querySelector('#tutor');
+const errorBox = document.querySelector('#error');
+const credentials = document.querySelector('#credenciales');
+let busy = false;
+
+function syncTutor() {
+ const show = titular.value === 'tutor';
+ tutor.hidden = !show;
+ tutor.disabled = !show;
+}
+function error(message = '') {
+ errorBox.textContent = message;
+ errorBox.hidden = !message;
+}
+function clearResult() {
+ credentials.hidden = true;
+ for (const key of ['usuario','contrasena','persona_id']) document.getElementById(key).textContent = '';
+}
+titular.addEventListener('change', syncTutor);
+for (const tab of tabs) tab.addEventListener('click', () => {
+ for (const button of tabs) button.setAttribute('aria-pressed', String(button === tab));
+ for (const form of forms) form.hidden = form.id !== tab.dataset.tab;
+ error();
+ clearResult();
+});
+async function request(path, options) {
+ if (location.origin !== 'http://127.0.0.1:8765') {
+  throw new Error('Inicia Python con py app.py y abre el formulario en http://127.0.0.1:8765.');
+ }
+ let response;
+ try {
+  response = await fetch(path, options);
+ } catch {
+  throw new Error('Enciende el servidor con py app.py y recarga esta página.');
+ }
+ if (!response.headers.get('Content-Type')?.includes('application/json')) {
+  throw new Error('La página no está conectada al servidor de Excel. Ejecuta py app.py y vuelve a abrirla.');
+ }
+ const body = await response.json();
+ if (!response.ok) throw new Error(body.error || 'No se pudo completar la solicitud.');
+ return body;
+}
+for (const form of forms) form.addEventListener('submit', async event => {
+ event.preventDefault();
+ if (busy) return;
+ const button = form.querySelector('button[type=submit]');
+ busy = button.disabled = true;
+ for (const tab of tabs) tab.disabled = true;
+ clearResult();
+ error();
+ try {
+  const body = await request('/api/registro', {method:'POST',
+   headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});
+  form.reset();
+  syncTutor();
+  for (const key of ['usuario','contrasena','persona_id']) document.getElementById(key).textContent = body[key];
+  credentials.hidden = false;
+  credentials.focus();
+ } catch (failure) {
+  error(failure.message);
+ } finally {
+  busy = button.disabled = false;
+  for (const tab of tabs) tab.disabled = false;
+ }
+});
+syncTutor();
+request('/api/registro').then(({areas}) => {
+ for (const item of areas) area.add(new Option(item.label,item.code));
+ areaNote.hidden = areas.length > 0;
+}).catch(failure => error(failure.message));
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+HOSPITAL INFANTIL ARCOÍRIS · REGISTRO WEB DE CUENTAS
+
+1. Extrae todo el ZIP. Abre esa carpeta en Visual Studio Code.
+2. Cierra el Excel mientras capturas. Ejecuta en la terminal de VS Code:
+
+   py -m pip install -r requirements.txt
+   py app.py
+
+3. Abre http://127.0.0.1:8765/registro/ y elige Trabajadores o Pacientes.
+   Para captura general abre http://127.0.0.1:8765/.
+   Usa el servidor de Python para guardar. Live Server y abrir el HTML
+   con doble clic sirven únicamente para ver el diseño.
+4. Si la lista de áreas está vacía, entra a http://127.0.0.1:8765/,
+   guarda un área de prueba en Áreas y vuelve a cargar /registro/.
+5. Al guardar se muestra el usuario y la contraseña generada. En el Excel
+   se guardan los datos personales, la cuenta pendiente y su huella en
+   Credenciales_Web. Esa hoja se crea al registrar la primera cuenta.
+
+PARA VINCULARLO CON TU PÁGINA
+
+Copia tu index.html, estilos y recursos públicos en la carpeta sitio.
+Conserva los dos logos incluidos. En sitio/index.html agrega:
+
+   <a href="/registro/">Registro de trabajadores y pacientes</a>
+
+Abre tu página con http://127.0.0.1:8765/sitio/ mientras app.py está activo.
+El Excel debe quedar junto a app.py, fuera de la carpeta sitio.
+
+Este paquete funciona en la computadora donde se ejecuta app.py.
+Usa datos ficticios en las pruebas. El inicio de sesión y la activación
+de cuentas quedan pendientes de conectar con el portal.

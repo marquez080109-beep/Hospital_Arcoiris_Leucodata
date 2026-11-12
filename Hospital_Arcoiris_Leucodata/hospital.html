@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Ajusta la página a computadoras y celulares. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Nombre que aparece en la pestaña del navegador. -->
+    <title>Hospital Arcoíris y LeucoDatos</title>
+<!-- Logo que aparece en la pestaña del navegador. -->
+<link rel="icon" type="image/jpeg" href="Hospital.jpeg">
+    <!-- Conecta nuestra página con sus estilos. -->
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+    <main class="contenedor">
+
+        <!-- Presentación del hospital. -->
+        <section class="presentacion">
+     <img
+    src="Hospital.jpeg"
+    alt="Logo del Hospital Infantil Arcoíris"
+    class="logo-hospital"
+>
+    <p class="etiqueta">HOSPITAL INFANTIL</p>
+
+    <h1>Hospital <span>Arcoíris</span></h1>
+        
+            <p class="introduccion">
+                Un espacio para cuidar, acompañar y organizar
+                la atención de nuestros pacientes.
+            </p>
+
+            <div class="laboratorio">
+            <img
+    src="LeucoData.jpeg"
+    alt="Logo del laboratorio LeucoDatos"
+    class="logo-laboratorio"
+>
+                <h2>LeucoDatos</h2>
+                <p>Laboratorio de análisis clínicos.</p>
+            </div>
+        </section>
+
+        <!-- Formulario de acceso. -->
+        <section class="tarjeta">
+            <h2>Iniciar sesión</h2>
+
+            <p>
+                Acceso para personal del hospital,
+                pacientes y tutores.
+            </p>
+
+                <form action="/login" method="post"></form>
+                <label for="usuario">Usuario</label>
+
+                <input
+                    type="text"
+                    id="usuario"
+                    name="usuario"
+                    placeholder="Escribe tu usuario"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="contrasena">Contraseña</label>
+
+                <input
+                    type="password"
+                    id="contrasena"
+                    name="contrasena"
+                    placeholder="Escribe tu contraseña"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <!-- Lo activaremos cuando programemos el servidor. -->
+                <button type="submit">
+                    Iniciar sesión
+                </button>
+            </form>
+            <p class="enlace-registro">
+    ¿Todavía no tienes una cuenta?
+    <a href="/registro/">Registrarme</a>
+</p>
+
+            <p class="nota">
+                  Ingresa con la cuenta generada en el registro.
+                Tu cuenta debe estar autorizada para acceder.
+            </p>
+        </section>
+
+    </main>
+
+    <footer>
+        Hospital Arcoíris · Laboratorio LeucoDatos
+    </footer>
+</body>
+</html>
